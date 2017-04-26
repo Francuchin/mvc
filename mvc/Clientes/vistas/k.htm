@@ -1,5 +1,6 @@
-{ESTILO:mvc/Cliente/estilo_k.css}
-{SCRIPT:mvc/Cliente/js/k.js}
+{ESTILO:mvc/Clientes/estilo_k.css}
+{SCRIPT:mvc/Clientes/js/k.js}
+{SCRIPT:mvc/Clientes/js/k2.js}
 <h3>Indice {index_numeros} - Hola {GET:nombre}
   {IF({ISSET:valor})}
   - {valor}
@@ -9,3 +10,6 @@
    el nombre es nulo
    {ENDIF}
 </h3>
+{SCRIPT}
+console.log("weee desde vista k")
+{ENDSCRIPT}

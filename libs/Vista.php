@@ -72,7 +72,7 @@ class Vista {
   }
   function getScripts($salida){
     return preg_replace_callback('~\{SCRIPT:([^\r\n}]+)\}~', function($m) {
-      if(!in_array( $m[1], $this->scripts)){
+      if(!in_array( $m[1], $this->scripts) && file_exists($m[1])){
         array_push($this->scripts, $m[1]);
       }
     }, $salida);
@@ -86,6 +86,8 @@ class Vista {
     $template = preg_replace_callback('~\{TITULO:([^\r\n}]+)\}~', function($m) {
       $this->titulo = $m[1];
     }, $template);
+    $template = preg_replace('~\{SCRIPT\}~', '<?php echo \'<script type="text/javascript">\'."\n"; ?>', $template);
+    $template = preg_replace('~\{ENDSCRIPT\}~', '<?php echo \'</script>\'; ?>', $template);
     $template = preg_replace('~\{ENDIF\}~', '<?php endif; ?>', $template);
     $template = preg_replace('~\{ENDLOOP\}~', '<?php $this->unwrap(); endforeach; endif;?>', $template);
     $template = $this->traducirCondiciones($template);
@@ -128,6 +130,7 @@ class Vista {
     <html>
       <head>
         <meta charset='utf-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
         <title>".((!isset($this->titulo)) ? get_class($this->controlador) :  $this->titulo )."</title>
         <!-- Estilos -->
         ".$this->Estilos()."
@@ -139,27 +142,53 @@ class Vista {
   public function Estilos(){
     $salida = "<link href=\"".URL."/public/css/".get_class($this->controlador).".css\" rel=\"stylesheet\" type=\"text/css\" />
     ";
-    foreach ($this->estilos as $key => $value) {
+    foreach (['vendor/timhovius/bootstrap-material-design/dist/css/material-fullpalette.min.css'] as $value)
       $salida .= "<link href=\"".URL."/".$value."\" rel=\"stylesheet\" type=\"text/css\" />
       ";
-    }
+    foreach ($this->estilos as $key => $value)
+      $salida .= "<link href=\"".URL."/".$value."\" rel=\"stylesheet\" type=\"text/css\" />
+      ";
     return $salida;
   }
 
   public function Scripts(){
-    $salida = "<script src=\"".URL."/public/js/".get_class($this->controlador).".js\" type=\"text/javascript\"> </script>
+    $salida = "<script src=\"/vendor/twbs/bootstrap/js/tests/vendor/jquery.min.js\" type=\"text/javascript\"></script>
     ";
-    foreach ($this->scripts as $key => $value) {
-      $salida .= "<script src=\"".URL."/".$value."\" type=\"text/javascript\"> </script>
+    $salida .= "<script src=\"".URL."/public/js/".get_class($this->controlador).".js\" type=\"text/javascript\"></script>
+    ";
+    foreach ($this->scripts as $key => $value)
+      $salida .= "<script src=\"".URL."/".$value."\" type=\"text/javascript\"></script>
       ";
-    }
     return $salida;
   }
-
-  public function Pie()
-  {
-    return '    </body>
-  </html>';
+  public function ScriptsPie(){
+    $js = [/*'/vendor/twbs/bootstrap/js/transition.js',
+    '/vendor/twbs/bootstrap/js/alert.js',
+    '/vendor/twbs/bootstrap/js/button.js',
+    '/vendor/twbs/bootstrap/js/carousel.js',
+    ' /vendor/twbs/bootstrap/js/collapse.js',
+    '/vendor/twbs/bootstrap/js/dropdown.js',
+    '/vendor/twbs/bootstrap/js/modal.js',
+    '/vendor/twbs/bootstrap/js/tooltip.js',
+    '/vendor/twbs/bootstrap/js/popover.js',
+    '/vendor/twbs/bootstrap/js/scrollspy.js',
+    '/vendor/twbs/bootstrap/js/tab.js',
+    '/vendor/twbs/bootstrap/js/affix.js',*/
+    '/vendor/timhovius/bootstrap-material-design/scripts/ripples.js',
+    '/vendor/timhovius/bootstrap-material-design/scripts/material.js',
+  /*'/vendor/braincrafted/bootstrap-bundle/Braincrafted/Bundle/BootstrapBundle/Resources/js/bc-bootstrap-collection.js'*/];
+    foreach ($js as $value) $salida .= "
+      <script src=\"".URL."/".$value."\" type=\"text/javascript\"> </script>";
+    $salida.="
+      <script type=\"text/javascript\">
+        $.material.init();
+      </script>";
+    return $salida;
+  }
+  public function Pie()  {
+    return '    </body>'.
+    $this->ScriptsPie().'
+    </html>';
   }
 
 

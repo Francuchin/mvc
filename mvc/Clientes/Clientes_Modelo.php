@@ -4,7 +4,6 @@ class Clientes_Modelo extends Modelo{
   parent::__construct();
  }
  function consulta($tecto){
-   echo "consultando desde el modelo de cliente antes que el modelo por defecto<br>";
    return parent::consulta($tecto);
  }
 }
