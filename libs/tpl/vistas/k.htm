@@ -1,0 +1,11 @@
+{ESTILO:mvc/Cliente/estilo_k.css}
+{SCRIPT:mvc/Cliente/js/k.js}
+<h3>Indice {index_numeros} - Hola {GET:nombre}
+  {IF({ISSET:valor})}
+  - {valor}
+  {ENDIF}
+   - <span> vista "k"</span>
+   {IF({GET:nombre} == null)}
+   el nombre es nulo
+   {ENDIF}
+</h3>
