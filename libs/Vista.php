@@ -128,9 +128,9 @@ class Vista {
   {
     return "\n<!DOCTYPE html>
     <html>
-      <head>
+      <head lang='en'>
         <meta charset='utf-8'>
-        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0, shrink-to-fit=no'>
         <title>".((!isset($this->titulo)) ? get_class($this->controlador) :  $this->titulo )."</title>
         <!-- Estilos -->
         ".$this->Estilos()."
@@ -140,20 +140,21 @@ class Vista {
       <body>";
   }
   public function Estilos(){
-    $salida = "<link href=\"".URL."/public/css/".get_class($this->controlador).".css\" rel=\"stylesheet\" type=\"text/css\" />
-    ";
-    foreach (['vendor/timhovius/bootstrap-material-design/dist/css/material-fullpalette.min.css'] as $value)
-      $salida .= "<link href=\"".URL."/".$value."\" rel=\"stylesheet\" type=\"text/css\" />
+    $salida="<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto:300,400,500,700\">
+              <link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/icon?family=Material+Icons\">";
+    foreach (['libs/css/bootstrap-material-design.min.css'] as $value) $salida .= "<link href=\"".URL."/".$value."\" rel=\"stylesheet\" type=\"text/css\" />
       ";
+    $salida .= "<link href=\"".URL."/public/css/".get_class($this->controlador).".css\" rel=\"stylesheet\" type=\"text/css\" />
+    ";
     foreach ($this->estilos as $key => $value)
       $salida .= "<link href=\"".URL."/".$value."\" rel=\"stylesheet\" type=\"text/css\" />
       ";
+
     return $salida;
   }
 
   public function Scripts(){
-    $salida = "<script src=\"/vendor/twbs/bootstrap/js/tests/vendor/jquery.min.js\" type=\"text/javascript\"></script>
-    ";
+
     $salida .= "<script src=\"".URL."/public/js/".get_class($this->controlador).".js\" type=\"text/javascript\"></script>
     ";
     foreach ($this->scripts as $key => $value)
@@ -162,7 +163,13 @@ class Vista {
     return $salida;
   }
   public function ScriptsPie(){
-    $js = [/*'/vendor/twbs/bootstrap/js/transition.js',
+    $js = [
+      'libs/js/jquery.min.js',
+      'libs/js/tether.min.js',
+      'libs/js/snackbar.min.js',
+      'libs/js/bootstrap-material-design.iife.min.js',
+      'libs/js/ie10-viewport-bug-workaround.js',
+      /*'/vendor/twbs/bootstrap/js/transition.js',
     '/vendor/twbs/bootstrap/js/alert.js',
     '/vendor/twbs/bootstrap/js/button.js',
     '/vendor/twbs/bootstrap/js/carousel.js',
@@ -173,16 +180,17 @@ class Vista {
     '/vendor/twbs/bootstrap/js/popover.js',
     '/vendor/twbs/bootstrap/js/scrollspy.js',
     '/vendor/twbs/bootstrap/js/tab.js',
-    '/vendor/twbs/bootstrap/js/affix.js',*/
-    '/vendor/timhovius/bootstrap-material-design/scripts/ripples.js',
-    '/vendor/timhovius/bootstrap-material-design/scripts/material.js',
-  /*'/vendor/braincrafted/bootstrap-bundle/Braincrafted/Bundle/BootstrapBundle/Resources/js/bc-bootstrap-collection.js'*/];
+    '/vendor/twbs/bootstrap/js/affix.js',
+    'vendor/twbs/bootstrap/dist/js/bootstrap.min.js',
+    'vendor/timhovius/bootstrap-material-design/scripts/ripples.js',
+    'vendor/timhovius/bootstrap-material-design/scripts/material.js',
+    '/vendor/braincrafted/bootstrap-bundle/Braincrafted/Bundle/BootstrapBundle/Resources/js/bc-bootstrap-collection.js'*/];
     foreach ($js as $value) $salida .= "
       <script src=\"".URL."/".$value."\" type=\"text/javascript\"> </script>";
     $salida.="
-      <script type=\"text/javascript\">
-        $.material.init();
-      </script>";
+    <script>
+      $('body').bootstrapMaterialDesign();
+    </script>";
     return $salida;
   }
   public function Pie()  {

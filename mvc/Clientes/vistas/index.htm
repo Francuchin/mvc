@@ -1,21 +1,32 @@
-{ESTILO:mvc/Cliente/estilo_index.css}
-Controlador {controlador} (sin GET)<br>
-Controlador {GET:controlador} (con GET) <br>
-<button class="btn btn-material-deep-purple">Deep purple button</button>
-<br>------------------ LOOP<br>
-{LOOP:numeros}
-<h3>{index_numeros} - Hola {GET:nombre} - {valor}</h3>
-{ENDLOOP}
-
-<br>------------------ IF (nombre) /*distinto de null*/ y LOOP con RENDER<br>
-{IF({GET:nombre})}
-  {LOOP:numeros}
-    {RENDER:k}
-  {ENDLOOP}
-{ENDIF}
-<br>------------------ RENDER<br>
-{RENDER:k}
-___<br>
-{LOOP:lugares}
-  {RENDER:probando}
-{ENDLOOP}
+<nav class="navbar navbar-fixed-top navbar-light bg-faded">
+  <a class="navbar-brand" href="#">Navbar</a>
+  <ul class="nav navbar-nav">
+    <li class="nav-item active">
+      <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">Features</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">Pricing</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">About</a>
+    </li>
+  </ul>
+  <form class="form-inline pull-xs-right">
+    <input class="form-control" type="text" placeholder="Buscar">
+  </form>
+</nav>
+<div style="height:55px"></div>
+<div class="container">
+  <div class="row">
+    <div class="card-deck-wrapper">
+      <div class="card-deck">
+        {LOOP:lugares}
+        {RENDER:probando}
+        {ENDLOOP}
+      </div>
+    </div>
+  </div>
+</div>
