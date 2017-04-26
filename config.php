@@ -13,5 +13,3 @@
     define('EMAIL_PASS', '');
     define('CONTROLADOR_X_DEFECTO', 'Clientes');
     define('ACCION_X_DEFECTO', 'escribir');
-
-    define('MAP_API_KEY', 'AIzaSyBEpuU3xkNet5tqIH-lDtwWY32H71j41cQ');
