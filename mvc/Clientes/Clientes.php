@@ -3,7 +3,7 @@ class Clientes extends Controlador{
  public function __construct(){
   parent::__construct();
  }
- public function escribir($valor=null){
+ public function index($valor=null){
   $d = [["valor" => "uno"],["valor"=>"des"],["valor"=>"tros"]];
   $d = [["valor" => "uno"],["valor"=>"des"],["valor"=>"tros"]];
   $d = [["valor" => "uno"],["valor"=>"des"],["valor"=>"tros"]];
@@ -12,7 +12,7 @@ class Clientes extends Controlador{
   $this->vista->set("prueba", "probando");
   $this->vista->set("lugares", $this->modelo->consulta("SELECT * from lugar"));
   $this->vista->set("numeros", $d);
-  $this->vista->show("index");
+  $this->vista->show("test");
   //$this->vista->json( $this->modelo->consulta("SELECT * from lugar") );
   //var_dump($this->modelo->consulta("SELECT * from lugar"));
  }

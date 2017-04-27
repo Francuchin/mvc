@@ -11,7 +11,6 @@ class Vista {
     $this->vistaPadre = null;
     $this->titulo = null;
   }
-
   function json($data=null){
     if(isset($data)) $this->data = $data;
     header('Content-Type: application/json');
@@ -93,12 +92,6 @@ class Vista {
   function unwrap(){
     $this->stack = [];
   }
-  function show($vista){
-    $c = get_class($this->controlador);
-    $this->vista = $vista;
-    $ruta = './mvc/'.$c.'\vistas/'.$vista.'.htm';
-    $this->render($ruta);
-  }
   function traducirDatos($salida){
     return preg_replace_callback('~\{GET:([^\r\n}]+)\}~', function($m) {
       //var_dump(preg_split("/\|/",$m[1]));
@@ -124,18 +117,27 @@ class Vista {
       }
     }, $salida);
   }
-  function render($ruta){
-    echo "<!-- Inicio Vista ".$this->vista." -->";
-    if (!file_exists($ruta)) return (new ControlErrores())->faltaVista();
+  function reemplazarComponentes($salida){
+    return preg_replace_callback('~\{COMPONENTE:(\w+)\}~',function($m) {
+      return $this->reemplazarComponentes("<!--$m[1]-->".$this->$m[1]());
+    }, $salida);
+  }
+  function show($vista){
+    $c = get_class($this->controlador);
+    $this->vista = $vista;
+    $ruta = './mvc/'.$c.'\vistas/'.$vista.'.htm';
+    if(!file_exists($ruta)) return $this->render($this->$vista());
     $template = file_get_contents($ruta);
+    $this->render($template);
+  }
+  function render($template){
+    echo "<!-- Inicio Vista ".$this->vista." -->";
     $this->stack = array();
     $template = str_replace('<', '<?php echo \'<\'; ?>', $template);
     $template = preg_replace_callback('~\{TITULO:([^\r\n}]+)\}~', function($m) {
       $this->titulo = $m[1];
     }, $template);
-    $template = preg_replace_callback('~\{COMPONENTE:(\w+)\}~',function($m) {
-      return "<!--$m[1]-->".$this->$m[1]();
-    }, $template);
+    $template = $this->reemplazarComponentes($template);
     $template = preg_replace('~\{SCRIPT\}~', '<?php echo \'<script type="text/javascript">\'."\n"; ?>', $template);
     $template = preg_replace('~\{ENDSCRIPT\}~', '<?php echo \'</script>\'; ?>', $template);
     $template = preg_replace('~\{ENDIF\}~', '<?php endif; ?>', $template);
@@ -173,9 +175,10 @@ class Vista {
   }
 
   public function Cabecera(){
-    return "\n<!DOCTYPE html>
-    <html>
-      <head lang='en'>
+    return "
+    <!DOCTYPE html>
+    <html lang='en'>
+      <head>
         <meta charset='utf-8'>
         <meta name='viewport' content='width=device-width, initial-scale=1.0, shrink-to-fit=no'>
         <title>".((!isset($this->titulo)) ? get_class($this->controlador) :  $this->titulo )."</title>
@@ -184,7 +187,8 @@ class Vista {
         <!-- Scripts -->
         ".$this->Scripts()."
       </head>
-      <body>";
+      <body>
+        ";
   }
   public function Estilos(){
     $salida="<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto:300,400,500,700\">
@@ -238,9 +242,10 @@ class Vista {
     return $salida;
   }
   public function Pie(){
-    return '    </body>
-    <!-- Scripts Pie-->'.
-    $this->ScriptsPie().'
+    return '
+      </body>
+      <!-- Scripts Pie-->'.
+      $this->ScriptsPie().'
     </html>';
   }
 

@@ -10,7 +10,7 @@ Controlador {GET:controlador} (con GET)
   {RENDER:{GET:prueba}}<br>
 {ENDLOOP}
 <br>------------------ IF (nombre) /*distinto de null*/ y LOOP con RENDER<br>
-{IF({GET:nombre})}
+{IF({nombre})}
   {LOOP:numeros}
     {RENDER:k}
   {ENDLOOP}

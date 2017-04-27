@@ -5,7 +5,7 @@
   - {valor}
   {ENDIF}
    - <span> vista "k"</span>
-   {IF({GET:nombre} == null)}
+   {IF({ISSET:nombre})}
    el nombre es nulo
    {ENDIF}
 </h3>

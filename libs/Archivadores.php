@@ -40,6 +40,16 @@ class _MVC{
   function Vistas(){
     echo  shell_exec('IF NOT EXIST mvc\\'.$this->nombre.'\\vistas mkdir mvc\\'.$this->nombre.'\\vistas');
     $vistas = array('index' => 'index', 'k'=>'k', 'probando'=>'probando');
+    $template = LIBS.'/tpl/vista.php';
+    $archivo = 'mvc/'.$this->nombre.'/'.$this->nombre.'_Vista.php';
+    if(file_exists($template) and is_file($template)){
+        $f = fopen($template,"rt");
+        $vista = fread($f, filesize($template));
+        @fclose($f);
+        $vista = preg_replace('~<vista_nombre>~', $this->nombre."_Vista", $vista);
+        file_put_contents($archivo, $vista);
+        echo "Creando gestor de Vistas...".$archivo."\n";
+    }else echo "No se encontro la ruta de la plantoya de vista \n";
     foreach ($vistas as $key => $value) {
       $ruta = 'mvc\\'.$this->nombre.'\\vistas\\'.$value.'.htm';
       shell_exec('IF NOT EXIST '.$ruta.' echo> '.$ruta);
@@ -67,13 +77,15 @@ class _MVC{
     }else echo "No se encontro la ruta de la plantoya de controlador \n";
   }
   function Modelo(){
+    $template = LIBS.'/tpl/modelo.php';
     $archivo = 'mvc/'.$this->nombre.'/'.$this->nombre.'_Modelo.php';
-    echo shell_exec('echo ^<?php> '.$archivo);
-    echo shell_exec('echo class '.$this->nombre.'_Modelo extends Modelo{>>'.$archivo);
-    echo shell_exec('echo  public function __construct(){>>'.$archivo);
-    echo shell_exec('echo   parent::__construct();>>'.$archivo);
-    echo shell_exec('echo  }>>'.$archivo);
-    echo shell_exec('echo }>> '.$archivo);
-    echo "Creando Modelo...".$archivo."\n";
+    if(file_exists($template) and is_file($template)){
+        $f = fopen($template,"rt");
+        $modelo = fread($f, filesize($template));
+        @fclose($f);
+        $modelo = preg_replace('~<modelo_nombre>~', $this->nombre."_Modelo", $modelo);
+        file_put_contents($archivo, $modelo);
+        echo "Creando Modelo...".$archivo."\n";
+    }else echo "No se encontro la ruta de la plantoya de modelo \n";
   }
 }

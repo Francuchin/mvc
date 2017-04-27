@@ -9,7 +9,7 @@ class <controlador_nombre> extends Controlador{
  public function __construct(){
   parent::__construct();
  }
- public function escribir($valor=null){
+ public function index($valor=null){
   $d = [["valor" => "uno"],["valor"=>"des"],["valor"=>"tros"]];
   $this->vista->set("nombre", $valor);
   $this->vista->set("controlador", get_class($this));

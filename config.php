@@ -12,4 +12,4 @@
     define('EMAIL_USER', '');
     define('EMAIL_PASS', '');
     define('CONTROLADOR_X_DEFECTO', 'Clientes');
-    define('ACCION_X_DEFECTO', 'escribir');
+    define('ACCION_X_DEFECTO', 'index');
