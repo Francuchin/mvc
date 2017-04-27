@@ -17,12 +17,24 @@ class Vista {
     header('Content-Type: application/json');
     echo json_encode( $this->data );
   }
-
+  function arrayToString($res){
+    if(!is_array($res)) {
+      return $res;
+    }else{
+      $aux = "[";
+      foreach ($res as $key => $value) {
+        $aux.="'".$key."'=>".$this->arrayToString($value).",";
+      }
+      $aux = substr($aux, 0, -1);
+      $aux .= "]";
+      return $aux;
+    }
+  }
   function showVariable($name) {
     if (isset($this->stack[$name])) {
-      echo $this->stack[$name];
+      echo $this->arrayToString($this->stack[$name]);
     }else if (isset($this->data[$name])) {
-      echo $this->data[$name];
+      echo  $this->arrayToString($this->data[$name]);
     } else {
       echo '{' . $name . '}';
     }
@@ -36,15 +48,49 @@ class Vista {
       return 'null';
     }
   }
+  function getVariable2($index){
+    $aux = $this->stack;
+    if(isset($index[0]) ){
+      foreach ($index as $key){
+        if (isset($aux[$key])  || isset($aux[intval($key)])) {
+          $aux = isset($aux[$key]) ? $aux[$key] : $aux[intval($key)];
+        }else {
+          $aux=null;
+          break;
+        }
+      }
+    }else {
+      $aux=null;
+      if (isset($this->stack[$index]))  return $this->stack[$index];
+    }
+    if($aux!=null) return $aux;
+    $aux = $this->data;
+    if(isset($index[0])){
+      foreach ($index as $key){
+        if (isset($aux[$key]) || isset($aux[intval($key)])) {
+          $aux = isset($aux[$key]) ? $aux[$key] : $aux[intval($key)];
+        }else {
+          $aux=null;
+          break;
+        }
+      }
+    }else{
+      $aux=null;
+      if (isset($this->data[$index])){
+        return $this->data[$index];
+      }
+    }
+    return $aux;
+  }
   function set($nombre, $valor){
     $this->data[$nombre] = $valor;
   }
-  function wrap($element) {
+  function wrap($element){
     foreach ($element as $k => $v) {
       $this->stack[$k] = $v;
     }
   }
-  function unwrap() {
+  function unwrap(){
     $this->stack = [];
   }
   function show($vista){
@@ -55,7 +101,8 @@ class Vista {
   }
   function traducirDatos($salida){
     return preg_replace_callback('~\{GET:([^\r\n}]+)\}~', function($m) {
-      return $this->getVariable($m[1]);
+      //var_dump(preg_split("/\|/",$m[1]));
+      return $this->getVariable2(preg_split("/\|/",$m[1]));
     }, $salida);
   }
   function traducirCondiciones($salida){ //faltan agregas mas expresiones, ej: tamaño
@@ -77,7 +124,7 @@ class Vista {
       }
     }, $salida);
   }
-  function render($ruta) {
+  function render($ruta){
     echo "<!-- Inicio Vista ".$this->vista." -->";
     if (!file_exists($ruta)) return (new ControlErrores())->faltaVista();
     $template = file_get_contents($ruta);
@@ -85,6 +132,9 @@ class Vista {
     $template = str_replace('<', '<?php echo \'<\'; ?>', $template);
     $template = preg_replace_callback('~\{TITULO:([^\r\n}]+)\}~', function($m) {
       $this->titulo = $m[1];
+    }, $template);
+    $template = preg_replace_callback('~\{COMPONENTE:(\w+)\}~',function($m) {
+      return "<!--$m[1]-->".$this->$m[1]();
     }, $template);
     $template = preg_replace('~\{SCRIPT\}~', '<?php echo \'<script type="text/javascript">\'."\n"; ?>', $template);
     $template = preg_replace('~\{ENDSCRIPT\}~', '<?php echo \'</script>\'; ?>', $template);
@@ -100,7 +150,6 @@ class Vista {
       foreach ($this->data[\'$1\'] as $ELEMENT):
         $this->data[\'index_$1\']++;
         $this->wrap($ELEMENT); ?>', $template); // falta aceptar un numero de iteraciones
-
     $template = preg_replace('~\{RENDER:(\w+)\}~', '<?php
     $temp = new Vista();
     $temp->controlador = $this->controlador;
@@ -111,21 +160,19 @@ class Vista {
     $template = $this->getScripts($template);
     if(isset($this->vistaPadre)) $this->vistaPadre->estilos = array_unique(array_merge($this->vistaPadre->estilos , $this->estilos), SORT_REGULAR);
     if(isset($this->vistaPadre)) $this->vistaPadre->scripts = array_unique(array_merge($this->vistaPadre->scripts , $this->scripts), SORT_REGULAR);
-    //if(!isset($this->vistaPadre)) $template = $this->Cabecera().$template.$this->Pie();
     $template = '?>' . $template;
     ob_start();
     eval ($template);
     $result = ob_get_contents();
-    ob_end_clean();
     if(!isset($this->vistaPadre)) $result = $this->Cabecera().$result.$this->Pie();
+    ob_end_clean();
     echo $result;
-      echo "<!-- Fin Vista ".$this->vista." -->";
+    echo "<!-- Fin Vista ".$this->vista." -->";
 
 
   }
 
-  public function Cabecera()
-  {
+  public function Cabecera(){
     return "\n<!DOCTYPE html>
     <html>
       <head lang='en'>
@@ -141,25 +188,22 @@ class Vista {
   }
   public function Estilos(){
     $salida="<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto:300,400,500,700\">
-              <link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/icon?family=Material+Icons\">";
-    foreach (['libs/css/bootstrap-material-design.min.css'] as $value) $salida .= "<link href=\"".URL."/".$value."\" rel=\"stylesheet\" type=\"text/css\" />
-      ";
-    $salida .= "<link href=\"".URL."/public/css/".get_class($this->controlador).".css\" rel=\"stylesheet\" type=\"text/css\" />
-    ";
+        <link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/icon?family=Material+Icons\">";
+    foreach (['libs/css/bootstrap-material-design.min.css'] as $value) $salida .= "
+        <link rel=\"stylesheet\" href=\"".URL."/".$value."\" type=\"text/css\" />";
+    $salida .= "
+        <link rel=\"stylesheet\" href=\"".URL."/public/css/".get_class($this->controlador).".css\" type=\"text/css\" />";
     foreach ($this->estilos as $key => $value)
-      $salida .= "<link href=\"".URL."/".$value."\" rel=\"stylesheet\" type=\"text/css\" />
-      ";
-
+      $salida .= "
+          <link href=\"".URL."/".$value."\" rel=\"stylesheet\" type=\"text/css\" />";
     return $salida;
   }
 
   public function Scripts(){
-
-    $salida .= "<script src=\"".URL."/public/js/".get_class($this->controlador).".js\" type=\"text/javascript\"></script>
-    ";
+    $salida .= "<script src=\"".URL."/public/js/".get_class($this->controlador).".js\" type=\"text/javascript\"></script>";
     foreach ($this->scripts as $key => $value)
-      $salida .= "<script src=\"".URL."/".$value."\" type=\"text/javascript\"></script>
-      ";
+      $salida .= "
+          <script src=\"".URL."/".$value."\" type=\"text/javascript\"></script>";
     return $salida;
   }
   public function ScriptsPie(){
@@ -186,20 +230,47 @@ class Vista {
     'vendor/timhovius/bootstrap-material-design/scripts/material.js',
     '/vendor/braincrafted/bootstrap-bundle/Braincrafted/Bundle/BootstrapBundle/Resources/js/bc-bootstrap-collection.js'*/];
     foreach ($js as $value) $salida .= "
-      <script src=\"".URL."/".$value."\" type=\"text/javascript\"> </script>";
+        <script src=\"".URL."/".$value."\" type=\"text/javascript\"> </script>";
     $salida.="
-    <script>
-      $('body').bootstrapMaterialDesign();
-    </script>";
+        <script type=\"text/javascript\">
+          $('body').bootstrapMaterialDesign();
+        </script>";
     return $salida;
   }
-  public function Pie()  {
-    return '    </body>'.
+  public function Pie(){
+    return '    </body>
+    <!-- Scripts Pie-->'.
     $this->ScriptsPie().'
     </html>';
   }
 
+/*
+* COMPONENTES
+*/
 
-
+function navbar(){
+  return '
+  <nav class="navbar navbar-fixed-top navbar-light bg-faded">
+    <a class="navbar-brand" href="#">Navbar</a>
+    <ul class="nav navbar-nav">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Features</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Pricing</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">About</a>
+      </li>
+    </ul>
+    <form class="form-inline pull-xs-right">
+      <input class="form-control" type="text" placeholder="Buscar">
+    </form>
+  </nav>
+  <div style="height:55px"></div>';
+}
 
 }
