@@ -8,6 +8,7 @@ class Vista {
     $this->stack = [];
     $this->estilos = [];
     $this->scripts = [];
+    $this->LscriptsPie = [];
     $this->vistaPadre = null;
     $this->titulo = null;
   }
@@ -100,9 +101,14 @@ class Vista {
     }, $salida);
   }
   function getScripts($salida){
-    return preg_replace_callback('~\{SCRIPT:([^\r\n}]+)\}~', function($m) {
-      if(!in_array( $m[1], $this->scripts) && file_exists($m[1])){
+    $salida = preg_replace_callback('~\{SCRIPT:([^\r\n}]+)\}~', function($m) {
+      if(!in_array( $m[1], $this->scripts) ){//&& file_exists($m[1])){
         array_push($this->scripts, $m[1]);
+      }
+    }, $salida);
+    return preg_replace_callback('~\{SCRIPTPIE:([^\r\n}]+)\}~', function($m) {
+      if(!in_array( $m[1], $this->LscriptsPie) ){//&& file_exists(URL.$m[1])){
+        array_push($this->LscriptsPie, $m[1]);
       }
     }, $salida);
   }
@@ -209,6 +215,8 @@ class Vista {
       'libs/js/bootstrap-material-design.iife.min.js',
       'libs/js/ie10-viewport-bug-workaround.js'];
     foreach ($js as $value) $salida .= "
+        <script src=\"".URL."/".$value."\" type=\"text/javascript\"> </script>";
+    foreach ($this->LscriptsPie as $value) $salida .= "
         <script src=\"".URL."/".$value."\" type=\"text/javascript\"> </script>";
     $salida.="
         <script type=\"text/javascript\">

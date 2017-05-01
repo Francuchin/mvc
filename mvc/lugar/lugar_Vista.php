@@ -9,6 +9,7 @@ class lugar_Vista extends Vista{
   public function ver(){
     return "
     {COMPONENTE:navbar}
+    {SCRIPTPIE:/public/js/Articulos.js}
     {COMPONENTE:datosLugar}";
   }
   public function datosLugar(){
