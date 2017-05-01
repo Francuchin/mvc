@@ -54,17 +54,6 @@ class _MVC{
     $this->nombre = $nombre;
     $this->atributos = [];
   }
-  function agregarAtributo($nombre, $tipo, $ai=null, $nulo=null, $tam=null){
-    $atributo =
-    [
-      "nombre" => $nombre,
-      "tipo" => $tipo,
-      "nulo" => $nulo,
-      "tam" => $tam,
-      "auto_incremental" => $ai
-    ];
-    array_push($this->atributos,$atributo);
-  }
   function Crear(){
     $this->carpetasModulo();
     $this->Controlador();
@@ -123,7 +112,23 @@ class _MVC{
   function Modelo(){
     $template = LIBS.'/tpl/modelo.php';
     $archivo = 'mvc/'.$this->nombre.'/'.$this->nombre.'_Modelo.php';
-    if(file_exists($template) and is_file($template)){
+    $this->mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    if (mysqli_connect_errno()) {
+      printf("Connect failed: %s\n", mysqli_connect_error());
+      exit();
+    }else echo "conectado a la base de datos: ". DB_NAME ."...\n";
+
+    $sql = "CREATE TABLE ".$this->nombre."(id_".$this->nombre." int PRIMARY KEY NOT NULL AUTO_INCREMENT );";
+    if ($this->mysqli->query($sql) === TRUE) echo "Tabla creada \n";
+    foreach ($this->atributos as $value) {
+      $sql = "ALTER TABLE ".$this->nombre." ADD ".$value['nombre']." ".$value['tipo'].";";
+      if ($this->mysqli->query($sql) === TRUE) echo "Atributo ".$value['nombre']." agregado correctamente \n";
+      else echo 'Error: '. $this->mysqli->error;
+    }
+    $thread_id = $this->mysqli->thread_id;
+    $this->mysqli->kill($thread_id);
+    $this->mysqli->close();
+   if(file_exists($template) and is_file($template)){
       $f = fopen($template,"rt");
       $modelo = fread($f, filesize($template));
       @fclose($f);
@@ -131,5 +136,16 @@ class _MVC{
       file_put_contents($archivo, $modelo);
       echo "Creando Modelo...".$archivo."\n";
     }else echo "No se encontro la ruta de la plantoya de modelo \n";
+  }
+  function agregarAtributo($nombre, $tipo, $nulo=null, $tam=null, $ai=null){
+    $atributo =
+    [
+      "nombre" => $nombre,
+      "tipo" => $tipo,
+      "nulo" => $nulo,
+      "tam" => $tam,
+      "auto_incremental" => $ai
+    ];
+    array_push($this->atributos,$atributo);
   }
 }

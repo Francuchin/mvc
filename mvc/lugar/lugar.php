@@ -1,11 +1,11 @@
 <?php
 /*
 *
-* controlador modulo lugar
+* controlador modulo Lugar
 *
 */
 
-class lugar extends Controlador{
+class Lugar extends Controlador{
  public function __construct(){
   parent::__construct();
  }

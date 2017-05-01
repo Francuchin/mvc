@@ -2,14 +2,14 @@
 /**
  *
  */
-class lugar_Vista extends Vista{
+class Lugar_Vista extends Vista{
   public function index(){
     return "{COMPONENTE:navbar}";
   }
   public function ver(){
     return "
     {COMPONENTE:navbar}
-    {COMPONENTE:lugar}";
+    {COMPONENTE:Lugar}";
   }
   public function listado(){
     $this->data['listado'] = $this->controlador->listado;
@@ -19,7 +19,7 @@ class lugar_Vista extends Vista{
         <div class="card-deck-wrapper">
           <div class="card-deck">
           {LOOP:listado}
-          {COMPONENTE:lugar}
+          {COMPONENTE:Lugar}
           {ENDLOOP}
         </div>
       </div>
@@ -27,13 +27,13 @@ class lugar_Vista extends Vista{
   </div>
     ';
   }
-  public function lugar(){
+  public function Lugar(){
     return '
     <div class="card" style="max-width:50%; margin-bottom: 1em;">
       <img class="card-img-top" src="https://github.com/FezVrasta/bootstrap-material-design/raw/master/demo/imgs/banner.jpg"
       style="max-width:100%; min-width: 25vw;">
       <div class="card-block">
-        <a href="'.URL.'?c=lugar&p={GET:id}"><h4 class="card-title"> {GET:nombre}</h4></a>
+        <a href="'.URL.'?c=lugar&p={GET:id_Lugar}"><h4 class="card-title"> {GET:nombre}</h4></a>
         <p class="card-text"><small class="text-muted"> {GET:created_at}</small></p>
       </div>
     </div>

@@ -33,7 +33,7 @@ class <vista_nombre> extends Vista{
       <img class="card-img-top" src="https://github.com/FezVrasta/bootstrap-material-design/raw/master/demo/imgs/banner.jpg"
       style="max-width:100%; min-width: 25vw;">
       <div class="card-block">
-        <a href="'.URL.'?c=lugar&p={GET:id}"><h4 class="card-title"> {GET:nombre}</h4></a>
+        <a href="'.URL.'?c=lugar&p={GET:id_<nombre_componente>}"><h4 class="card-title"> {GET:nombre}</h4></a>
         <p class="card-text"><small class="text-muted"> {GET:created_at}</small></p>
       </div>
     </div>

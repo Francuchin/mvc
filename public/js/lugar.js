@@ -1,1 +1,1 @@
-/*--- javascript lugar ---*/
+/*--- javascript Lugar ---*/

@@ -33,7 +33,7 @@ class Modelo
       if(isset($this->id)) $consulta .= " WHERE id_".$this->nombreTabla."=".$this->id;
     }else $consulta = "SELECT ".$att." FROM ".$this->nombreTabla;
     if(isset($this->id)){
-      $consulta .= " WHERE id=".$this->id;
+      $consulta .= " WHERE id_".$this->nombreTabla."=".$this->id;
       return $this->consulta($consulta)[0];
     }
     return $this->consulta($consulta);
@@ -52,7 +52,9 @@ class Modelo
   * para consultas cosas mas complejas
   * @param String $consulta
   *
-  * @return Array<String> $result / Error / Null
+  * @return Array $result / Error / Null
+  * @return $result = [ 0 => ['id' => 1, 'nombre' => 'el uno'], 1 => ['id' => 2, 'nombre' => 'el dos xD']]
+  *
   */
   function consulta($consulta){
     $result = null;
@@ -78,7 +80,8 @@ class Modelo
   * @param String $where
   * @param Array<> $whereValores
   *
-  * @return Array<String> $result / Error
+  * @return Array $result / Error
+  * @return $result = [ 0 => ['id' => 1, 'nombre' => 'el uno'], 1 => ['id' => 2, 'nombre' => 'el dos xD']]
   */
   function select($atriburos, $tablas, $where=null, $whereValores=null){
     $columnas = "";

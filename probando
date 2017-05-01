@@ -1,8 +1,13 @@
 <?php
 require 'libs/Archivadores.php';
-//(new PLANTOYA())->Crear();
+/*(new PLANTOYA())->Crear();
 if(!isset($argv[1])){
   echo "se necesita un nombre de modulo";
   exit();
 }else
 (new _MVC($argv[1]))->Crear();
+*/
+$modulo = new _MVC("Lugar");
+$modulo->agregarAtributo("nombre", "text");
+$modulo->agregarAtributo("descripcion", "text");
+$modulo->crear();

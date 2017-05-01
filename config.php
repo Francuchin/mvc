@@ -9,7 +9,7 @@
     define('DB_HOST' , 'localhost');
     define('DB_USER' , 'root' );
     define('DB_PASS' , '' );
-    define('DB_NAME' , 'turismo');
+    define('DB_NAME' , 'plantoya');
 
     define('EMAIL_USER', '');
     define('EMAIL_PASS', '');
