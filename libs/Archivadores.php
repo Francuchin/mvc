@@ -90,6 +90,7 @@ class _MVC{
       $vista = fread($f, filesize($template));
       @fclose($f);
       $vista = preg_replace('~<vista_nombre>~', $this->nombre."_Vista", $vista);
+      $vista = preg_replace('~<nombre_componente>~', $this->nombre, $vista);
       file_put_contents($archivo, $vista);
       echo "Creando gestor de Vistas...".$archivo."\n";
     }else echo "No se encontro la ruta de la plantoya de vista \n";

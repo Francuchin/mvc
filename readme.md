@@ -11,7 +11,7 @@
 <b>{ENDIF}</b> lel <br>
 <b>{COMPONENTE:fun}</b> imprime resultado de funcion "fun", pertenecionete a la vista <br>
 <b>{SCRIPT:ruta}</b> importa el script "ruta" en header <falta terminar> <br>
-<b>{SCRIPT:ruta}</b> importa el script "ruta" al final <falta terminar> <br>
+<b>{SCRIPTPIE:ruta}</b> importa el script "ruta" al final <falta terminar> <br>
 <b>{TITULO:titulo}</b> setea el titulo "titulo" <br>
 <b>{ESTILO:ruta}</b> importa el estilo "ruta" <br>
 <b>{ISSET:var}</b> retorna true/false dependiendo de si "var" esta seteada <br>
