@@ -3,15 +3,23 @@
  *
  */
 class Clientes_Vista extends Vista{
+  public function __construct(){
+    parent::__construct();
+    $this->items_navbar = [
+      "inicio" => "clientes",
+      "clientes" => "clientes",
+      "articulos" => "articulos"
+    ];
+  }
   public function carta(){
     return '
     <div class="card" style="margin-bottom: 1em;">
       <img class="card-img-top" src="https://github.com/FezVrasta/bootstrap-material-design/raw/master/demo/imgs/banner.jpg"
       style="max-width:100%; min-width: 25vw;">
       <div class="card-block">
-        <h4 class="card-title">{nombre}</h4>
+        <h4 class="card-title">{GET:nombre}</h4>
         <p class="card-text">
-        {articulo}
+        {GET:articulo}
         </p>
         <p class="card-text"><small class="text-muted">desarrollo en proceso</small></p>
       </div>

@@ -14,11 +14,56 @@ function stream_copy($src, $dest)
 }
 
 /**
+ * PLANTOYA
+ */
+class PLANTOYA {
+  function __construct(){
+    $this->nombre = PROYECTO;
+  }
+  function Crear(){
+    $this->crearEstructura();
+    $this->crearDB();
+  }
+  private function crearEstructura(){
+    echo  shell_exec('IF NOT EXIST mvc mkdir mvc');
+    echo  shell_exec('IF NOT EXIST public mkdir public');
+    echo  shell_exec('IF NOT EXIST public\\js mkdir public\\js');
+    echo  shell_exec('IF NOT EXIST public\\css mkdir public\\css');
+  }
+  private function crearDB(){
+    $this->mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS);
+    if (mysqli_connect_errno()) {
+      printf("Connect failed: %s\n", mysqli_connect_error());
+      exit();
+    }else echo "conectado al servidor de base de datos...\n";
+    $sql = "CREATE DATABASE `".$this->nombre."` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci";
+    if ($this->mysqli->query($sql) === TRUE) echo "Base de datos ".$this->nombre." creada correctamente \n";
+    else echo 'Error: '. $this->mysqli->error;
+    $thread_id = $this->mysqli->thread_id;
+    $this->mysqli->kill($thread_id);
+    $this->mysqli->close();
+  }
+}
+
+/**
 *
 */
+
 class _MVC{
   function __construct($nombre){
     $this->nombre = $nombre;
+    $this->atributos = [];
+  }
+  function agregarAtributo($nombre, $tipo, $ai=null, $nulo=null, $tam=null){
+    $atributo =
+    [
+      "nombre" => $nombre,
+      "tipo" => $tipo,
+      "nulo" => $nulo,
+      "tam" => $tam,
+      "auto_incremental" => $ai
+    ];
+    array_push($this->atributos,$atributo);
   }
   function Crear(){
     $this->carpetasModulo();
@@ -33,9 +78,7 @@ class _MVC{
     echo  shell_exec('IF NOT EXIST public\\js mkdir public\\js');
     echo  shell_exec('IF NOT EXIST public\\css mkdir public\\css');
     echo  shell_exec('IF NOT EXIST mvc\\'.$this->nombre.' mkdir mvc\\'.$this->nombre);
-    //echo  shell_exec('IF NOT EXIST mvc\\'.$this->nombre.'\\modelo mkdir mvc\\'.$this->nombre.'\\modelo');
     echo  shell_exec('IF NOT EXIST mvc\\'.$this->nombre.'\\vista mkdir mvc\\'.$this->nombre.'\\vistas');
-    //echo  shell_exec('IF NOT EXIST mvc\\'.$this->nombre.'\\controlador mkdir mvc\\'.$this->nombre.'\\controlador');
   }
   function Vistas(){
     echo  shell_exec('IF NOT EXIST mvc\\'.$this->nombre.'\\vistas mkdir mvc\\'.$this->nombre.'\\vistas');
@@ -43,12 +86,12 @@ class _MVC{
     $template = LIBS.'/tpl/vista.php';
     $archivo = 'mvc/'.$this->nombre.'/'.$this->nombre.'_Vista.php';
     if(file_exists($template) and is_file($template)){
-        $f = fopen($template,"rt");
-        $vista = fread($f, filesize($template));
-        @fclose($f);
-        $vista = preg_replace('~<vista_nombre>~', $this->nombre."_Vista", $vista);
-        file_put_contents($archivo, $vista);
-        echo "Creando gestor de Vistas...".$archivo."\n";
+      $f = fopen($template,"rt");
+      $vista = fread($f, filesize($template));
+      @fclose($f);
+      $vista = preg_replace('~<vista_nombre>~', $this->nombre."_Vista", $vista);
+      file_put_contents($archivo, $vista);
+      echo "Creando gestor de Vistas...".$archivo."\n";
     }else echo "No se encontro la ruta de la plantoya de vista \n";
     foreach ($vistas as $key => $value) {
       $ruta = 'mvc\\'.$this->nombre.'\\vistas\\'.$value.'.htm';
@@ -68,24 +111,24 @@ class _MVC{
     $template = LIBS.'/tpl/controlador.php';
     $archivo = 'mvc/'.$this->nombre.'/'.$this->nombre.'.php';
     if(file_exists($template) and is_file($template)){
-        $f = fopen($template,"rt");
-        $controlador = fread($f, filesize($template));
-        @fclose($f);
-        $controlador = preg_replace('~<controlador_nombre>~', $this->nombre, $controlador);
-        file_put_contents($archivo, $controlador);
-        echo "Creando Controlador...".$archivo."\n";
+      $f = fopen($template,"rt");
+      $controlador = fread($f, filesize($template));
+      @fclose($f);
+      $controlador = preg_replace('~<controlador_nombre>~', $this->nombre, $controlador);
+      file_put_contents($archivo, $controlador);
+      echo "Creando Controlador...".$archivo."\n";
     }else echo "No se encontro la ruta de la plantoya de controlador \n";
   }
   function Modelo(){
     $template = LIBS.'/tpl/modelo.php';
     $archivo = 'mvc/'.$this->nombre.'/'.$this->nombre.'_Modelo.php';
     if(file_exists($template) and is_file($template)){
-        $f = fopen($template,"rt");
-        $modelo = fread($f, filesize($template));
-        @fclose($f);
-        $modelo = preg_replace('~<modelo_nombre>~', $this->nombre."_Modelo", $modelo);
-        file_put_contents($archivo, $modelo);
-        echo "Creando Modelo...".$archivo."\n";
+      $f = fopen($template,"rt");
+      $modelo = fread($f, filesize($template));
+      @fclose($f);
+      $modelo = preg_replace('~<modelo_nombre>~', $this->nombre."_Modelo", $modelo);
+      file_put_contents($archivo, $modelo);
+      echo "Creando Modelo...".$archivo."\n";
     }else echo "No se encontro la ruta de la plantoya de modelo \n";
   }
 }

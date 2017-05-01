@@ -47,39 +47,29 @@ class Vista {
       return 'null';
     }
   }
-  function getVariable2($index){
-    $aux = $this->stack;
-    if(isset($index[0]) ){
-      foreach ($index as $key){
-        if (isset($aux[$key])  || isset($aux[intval($key)])) {
-          $aux = isset($aux[$key]) ? $aux[$key] : $aux[intval($key)];
-        }else {
-          $aux=null;
-          break;
-        }
-      }
-    }else {
-      $aux=null;
-      if (isset($this->stack[$index]))  return $this->stack[$index];
-    }
-    if($aux!=null) return $aux;
-    $aux = $this->data;
-    if(isset($index[0])){
-      foreach ($index as $key){
-        if (isset($aux[$key]) || isset($aux[intval($key)])) {
-          $aux = isset($aux[$key]) ? $aux[$key] : $aux[intval($key)];
-        }else {
-          $aux=null;
-          break;
-        }
-      }
-    }else{
-      $aux=null;
-      if (isset($this->data[$index])){
-        return $this->data[$index];
-      }
+  function buscarVariableEnRecurso($recurso, $variable){
+    $aux = $recurso;
+    foreach ($variable as $key){
+      if (isset($aux[$key]) || isset($aux[intval($key)]))
+      $aux = isset($aux[$key]) ? $aux[$key] : $aux[intval($key)];
+      else return null;
     }
     return $aux;
+  }
+  function buscarVariableEnControlador($variable){
+    $aux = $this->controlador;
+    foreach ($variable as $key){
+      if (isset($aux->$key))
+      $aux = $aux->$key;
+      else return null;
+    }
+    return $aux;
+  }
+  function getVariable2($index){
+    $aux = $this->buscarVariableEnRecurso($this->stack, $index);
+    if (!isset($aux)) $aux = $this->buscarVariableEnRecurso($this->data, $index);
+    if (!isset($aux)) $aux = $this->buscarVariableEnControlador($index);
+    echo $aux;
   }
   function set($nombre, $valor){
     $this->data[$nombre] = $valor;
@@ -94,7 +84,6 @@ class Vista {
   }
   function traducirDatos($salida){
     return preg_replace_callback('~\{GET:([^\r\n}]+)\}~', function($m) {
-      //var_dump(preg_split("/\|/",$m[1]));
       return $this->getVariable2(preg_split("/\|/",$m[1]));
     }, $salida);
   }
@@ -142,8 +131,8 @@ class Vista {
     $template = preg_replace('~\{ENDSCRIPT\}~', '<?php echo \'</script>\'; ?>', $template);
     $template = preg_replace('~\{ENDIF\}~', '<?php endif; ?>', $template);
     $template = preg_replace('~\{ENDLOOP\}~', '<?php $this->unwrap(); endforeach; endif;?>', $template);
+    $template = preg_replace('~\{GET:([^\r\n}]+)\}~', '<?php $this->getVariable2(preg_split("/\|/",$1)); ?>', $template);
     $template = $this->traducirCondiciones($template);
-    $template = $this->traducirDatos($template);
     $template = preg_replace('~\{(\w+)\}~', '<?php $this->showVariable(\'$1\'); ?>', $template);
     $template = preg_replace('~\{IF(([^\r\n}]+))\}~', '<?php if ($1): ?>', $template); // error, falta mejorar la manera en la que se plantean las condiciones
     $template = preg_replace('~\{LOOP:(\w+)\}~', '<?php
@@ -151,7 +140,8 @@ class Vista {
       $this->data[\'index_$1\'] = 0;
       foreach ($this->data[\'$1\'] as $ELEMENT):
         $this->data[\'index_$1\']++;
-        $this->wrap($ELEMENT); ?>', $template); // falta aceptar un numero de iteraciones
+        $this->wrap($ELEMENT);
+        ?>', $template); // falta aceptar un numero de iteraciones y mejorar la manera en que se leen los parametros
     $template = preg_replace('~\{RENDER:(\w+)\}~', '<?php
     $temp = new Vista();
     $temp->controlador = $this->controlador;
@@ -182,6 +172,7 @@ class Vista {
         <meta charset='utf-8'>
         <meta name='viewport' content='width=device-width, initial-scale=1.0, shrink-to-fit=no'>
         <title>".((!isset($this->titulo)) ? get_class($this->controlador) :  $this->titulo )."</title>
+        <link rel='icon' type='image/png' href='".URL."\\".ICON."'>
         <!-- Estilos -->
         ".$this->Estilos()."
         <!-- Scripts -->
@@ -216,23 +207,7 @@ class Vista {
       'libs/js/tether.min.js',
       'libs/js/snackbar.min.js',
       'libs/js/bootstrap-material-design.iife.min.js',
-      'libs/js/ie10-viewport-bug-workaround.js',
-      /*'/vendor/twbs/bootstrap/js/transition.js',
-    '/vendor/twbs/bootstrap/js/alert.js',
-    '/vendor/twbs/bootstrap/js/button.js',
-    '/vendor/twbs/bootstrap/js/carousel.js',
-    ' /vendor/twbs/bootstrap/js/collapse.js',
-    '/vendor/twbs/bootstrap/js/dropdown.js',
-    '/vendor/twbs/bootstrap/js/modal.js',
-    '/vendor/twbs/bootstrap/js/tooltip.js',
-    '/vendor/twbs/bootstrap/js/popover.js',
-    '/vendor/twbs/bootstrap/js/scrollspy.js',
-    '/vendor/twbs/bootstrap/js/tab.js',
-    '/vendor/twbs/bootstrap/js/affix.js',
-    'vendor/twbs/bootstrap/dist/js/bootstrap.min.js',
-    'vendor/timhovius/bootstrap-material-design/scripts/ripples.js',
-    'vendor/timhovius/bootstrap-material-design/scripts/material.js',
-    '/vendor/braincrafted/bootstrap-bundle/Braincrafted/Bundle/BootstrapBundle/Resources/js/bc-bootstrap-collection.js'*/];
+      'libs/js/ie10-viewport-bug-workaround.js'];
     foreach ($js as $value) $salida .= "
         <script src=\"".URL."/".$value."\" type=\"text/javascript\"> </script>";
     $salida.="
@@ -252,24 +227,24 @@ class Vista {
 /*
 * COMPONENTES
 */
-
+private function navbar_item($text, $c=null, $a=null){
+  return '
+  <li class="nav-item">
+    <a class="nav-link" href="'.URL.'?c='.(isset($c) ? $c : $text).'">'.$text.'</a>
+  </li>
+  ';
+}
 function navbar(){
+  $l = "";
+  if(isset($this->items_navbar) && isset($this->items_navbar[0]))
+  foreach ($this->items_navbar as $key => $v) {
+    $l .= $this->navbar_item($key, $v);
+  }
   return '
   <nav class="navbar navbar-fixed-top navbar-light bg-faded">
-    <a class="navbar-brand" href="#">Navbar</a>
+    <a class="navbar-brand" href="#">'.(isset($this->navbar_brand) ? $this->navbar_brand : PROYECTO).'</a>
     <ul class="nav navbar-nav">
-      <li class="nav-item active">
-        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Features</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Pricing</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">About</a>
-      </li>
+    '.$l.'
     </ul>
     <form class="form-inline pull-xs-right">
       <input class="form-control" type="text" placeholder="Buscar">

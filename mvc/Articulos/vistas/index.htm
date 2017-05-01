@@ -1,13 +1,14 @@
 {ESTILO:mvc/Cliente/estilo_index.css}
+{GET:numeros|1|valor}<br>
 Controlador {controlador} (sin GET)<br>
 Controlador {GET:controlador} (con GET)
 <br>------------------ LOOP<br>
 {LOOP:numeros}
-<h3>{index_numeros} - Hola {GET:nombre} - {valor}</h3>
+<h3>{index_numeros} - Hola {GET:nombre} - {GET:valor}</h3>
 {ENDLOOP}
 <br>------------------ LOOP con RENDER<br>
 {LOOP:numeros}
-  {RENDER:{GET:prueba}}<br>
+  {index_numeros} - {RENDER:probando}<br>
 {ENDLOOP}
 <br>------------------ IF (nombre) /*distinto de null*/ y LOOP con RENDER<br>
 {IF({ISSET:nombre})}

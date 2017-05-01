@@ -1,6 +1,5 @@
 {
     "require": {
-        "monolog/monolog": "1.0.*",
-        "timhovius/bootstrap-material-design": "dev-master"
+        "monolog/monolog": "1.0.*"
     }
 }

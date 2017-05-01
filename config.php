@@ -1,5 +1,7 @@
 <?php
 /*PLANTOYA*/
+    define('PROYECTO', 'PLANTOYA');
+    define('ICON', 'public\ico.png');
     define('URL', 'http://prosh.com');
     define('CARPETA_SERVER','C:\wamp\www-0');
     define('LIBS','libs/');

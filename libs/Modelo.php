@@ -10,16 +10,33 @@ class Modelo
   * __construct
   *
   */
-  function __construct(){
+  function __construct($id=null){
     $this->DB_HOST= DB_HOST;
     $this->DB_USER= DB_USER;
     $this->DB_PASS= DB_PASS;
     $this->DB_NAME= DB_NAME;
+    $this->id = $id;
     $this->mysqli = new mysqli($this->DB_HOST, $this->DB_USER, $this->DB_PASS, $this->DB_NAME);
     if (mysqli_connect_errno()) {
       printf("Connect failed: %s\n", mysqli_connect_error());
       exit();
     }
+  }
+  function getAtributo($att){
+    if(is_array($att)){
+      $consulta = "SELECT '";
+      foreach ($att as $v) {
+        $consulta.=$v."', '";
+      }
+      $consulta = substr($consulta, 0, -3);
+      $consulta .=" FROM ".$this->nombreTabla;
+      if(isset($this->id)) $consulta .= " WHERE id_".$this->nombreTabla."=".$this->id;
+    }else $consulta = "SELECT ".$att." FROM ".$this->nombreTabla;
+    if(isset($this->id)){
+      $consulta .= " WHERE id=".$this->id;
+      return $this->consulta($consulta)[0];
+    }
+    return $this->consulta($consulta);
   }
   /**
   *
@@ -39,6 +56,7 @@ class Modelo
   */
   function consulta($consulta){
     $result = null;
+    //echo "consulta - ".$consulta."\n";
     if ($stmt = $this->mysqli->prepare($consulta)) {
       $stmt->execute();
       $meta = $stmt->result_metadata();

@@ -18,13 +18,26 @@ class Controlador
       $this->vista = new Vista(); // cargar clase vista comun
     $this->vista->controlador = $this;
   }
-  function cargarModelo(){
+  function cargarModelo($id=null){
     $modelo = get_class($this).'_Modelo';
     $rutaModelo = './mvc/'.get_class($this).'/'.$modelo.'.php';
     if(file_exists($rutaModelo)){
       require_once $rutaModelo;
-      $this->modelo = new $modelo();
-    }else $this->modelo = new Modelo();
+      $this->modelo = new $modelo($id);
+    }else $this->modelo = new Modelo($id);
+    $this->modelo->nombreTabla = get_class($this);
+    $this->modelo->id = $id;
+    if(isset($id)){
+      $datos = $this->modelo->getAtributo("*");
+      foreach ($datos as $key => $value) {
+        $this->{$key} = $value;
+      }
+    }else{
+      $this->listado = $this->modelo->getAtributo("*");
+    }
+  }
+  function getAtributo($att){
+    return $this->modelo($att);
   }
   function llamarfuncion($nombre = "", $parametros = []){
     $function = new ReflectionMethod($this, $nombre);

@@ -13,6 +13,7 @@ class Clientes extends Controlador{
   $this->vista->set("lugares", $this->modelo->consulta("SELECT * from lugar"));
   $this->vista->set("numeros", $d);
   $this->vista->show("test");
+  // $this->vista->show("test"); //mismo resultado -OK-
   //$this->vista->json( $this->modelo->consulta("SELECT * from lugar") );
   //var_dump($this->modelo->consulta("SELECT * from lugar"));
  }
