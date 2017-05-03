@@ -12,7 +12,6 @@ class Lugar_Vista extends Vista{
     {COMPONENTE:Lugar}";
   }
   public function listado(){
-    $this->data['listado'] = $this->controlador->listado;
     return '
     <div class="container">
       <div class="row">
@@ -33,7 +32,7 @@ class Lugar_Vista extends Vista{
       <img class="card-img-top" src="https://github.com/FezVrasta/bootstrap-material-design/raw/master/demo/imgs/banner.jpg"
       style="max-width:100%; min-width: 25vw;">
       <div class="card-block">
-        <a href="'.URL.'?c=lugar&p={GET:id_Lugar}"><h4 class="card-title"> {GET:nombre}</h4></a>
+        <a href="'.URL.'?c=lugar&p={id_Lugar}"><h4 class="card-title"> {nombre}</h4></a>
         <p class="card-text"><small class="text-muted"> {GET:created_at}</small></p>
       </div>
     </div>
@@ -42,7 +41,12 @@ class Lugar_Vista extends Vista{
   public function inicio(){
     return "
     {COMPONENTE:navbar}
-    {COMPONENTE:listado}";
+    {COMPONENTE:listado}
+    {SCRIPT}
+    'use strict'
+    let cargar = () => Request({url:'http://munch.paap.cup.edu.uy/Turismo/?c=Recorrido&a=get&p=6'}).then(e=>console.log(e)).catch(e=>console.log(e))
+    window.onload = cargar
+    {ENDSCRIPT}";
   }
 }
 

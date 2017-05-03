@@ -40,13 +40,9 @@ class Vista {
     }
   }
   function getVariable($name){
-    if (isset($this->stack[$name])) {
-      return $this->stack[$name];
-    }else if (isset($this->data[$name])) {
-      return $this->data[$name];
-    } else {
-      return 'null';
-    }
+    if (isset($this->stack[$name])) return $this->stack[$name];
+    else if (isset($this->data[$name])) return $this->data[$name];
+    else return 'null';
   }
   function buscarVariableEnRecurso($recurso, $variable){
     $aux = $recurso;
@@ -57,6 +53,7 @@ class Vista {
     }
     return $aux;
   }
+  /*
   function buscarVariableEnControlador($variable){
     $aux = $this->controlador;
     foreach ($variable as $key){
@@ -66,10 +63,11 @@ class Vista {
     }
     return $aux;
   }
+  */
   function getVariable2($index){
     $aux = $this->buscarVariableEnRecurso($this->stack, $index);
     if (!isset($aux)) $aux = $this->buscarVariableEnRecurso($this->data, $index);
-    if (!isset($aux)) $aux = $this->buscarVariableEnControlador($index);
+    //if (!isset($aux)) $aux = $this->buscarVariableEnControlador($index);
     echo $aux;
   }
   function set($nombre, $valor){
@@ -102,12 +100,12 @@ class Vista {
   }
   function getScripts($salida){
     $salida = preg_replace_callback('~\{SCRIPT:([^\r\n}]+)\}~', function($m) {
-      if(!in_array( $m[1], $this->scripts) ){//&& file_exists($m[1])){
+      if(!in_array( $m[1], $this->scripts) && file_exists("./".$m[1])){
         array_push($this->scripts, $m[1]);
       }
     }, $salida);
     return preg_replace_callback('~\{SCRIPTPIE:([^\r\n}]+)\}~', function($m) {
-      if(!in_array( $m[1], $this->LscriptsPie) ){//&& file_exists(URL.$m[1])){
+      if(!in_array( $m[1], $this->LscriptsPie) && file_exists("./".$m[1])){
         array_push($this->LscriptsPie, $m[1]);
       }
     }, $salida);
@@ -128,11 +126,11 @@ class Vista {
   function render($template){
     echo "<!-- Inicio Vista ".$this->vista." -->";
     $this->stack = array();
+    $template = $this->reemplazarComponentes($template);
     $template = str_replace('<', '<?php echo \'<\'; ?>', $template);
     $template = preg_replace_callback('~\{TITULO:([^\r\n}]+)\}~', function($m) {
       $this->titulo = $m[1];
     }, $template);
-    $template = $this->reemplazarComponentes($template);
     $template = preg_replace('~\{SCRIPT\}~', '<?php echo \'<script type="text/javascript">\'."\n"; ?>', $template);
     $template = preg_replace('~\{ENDSCRIPT\}~', '<?php echo \'</script>\'; ?>', $template);
     $template = preg_replace('~\{ENDIF\}~', '<?php endif; ?>', $template);
@@ -173,7 +171,7 @@ class Vista {
   public function Cabecera(){
     return "
     <!DOCTYPE html>
-    <html lang='en'>
+    <html lang='es'>
       <head>
         <meta charset='utf-8'>
         <meta name='viewport' content='width=device-width, initial-scale=1.0, shrink-to-fit=no'>
@@ -212,6 +210,7 @@ class Vista {
       'libs/js/jquery.min.js',
       'libs/js/tether.min.js',
       'libs/js/snackbar.min.js',
+      'libs/js/request.js',
       'libs/js/bootstrap-material-design.iife.min.js',
       'libs/js/ie10-viewport-bug-workaround.js'];
     foreach ($js as $value) $salida .= "

@@ -31,9 +31,11 @@ class Controlador
       $datos = $this->modelo->getAtributo("*");
       foreach ($datos as $key => $value) {
         $this->{$key} = $value;
+        $this->vista->data[$key] = $value;
       }
     }else{
       $this->listado = $this->modelo->getAtributo("*");
+      $this->vista->data['listado'] = $this->listado;
     }
   }
   function getAtributo($att){

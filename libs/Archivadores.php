@@ -122,9 +122,12 @@ class _MVC{
     if ($this->mysqli->query($sql) === TRUE) echo "Tabla creada \n";
     foreach ($this->atributos as $value) {
       $sql = "ALTER TABLE ".$this->nombre." ADD ".$value['nombre']." ".$value['tipo'].";";
-      if ($this->mysqli->query($sql) === TRUE) echo "Atributo ".$value['nombre']." agregado correctamente \n";
+      if ($this->mysqli->query($sql) === TRUE) echo "Atributo '".$value['nombre']."' agregado correctamente \n";
       else echo 'Error: '. $this->mysqli->error;
     }
+    $sql = "ALTER TABLE ".$this->nombre." ADD created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP;";
+    if ($this->mysqli->query($sql) === TRUE) echo "Atributo 'created_at' agregado correctamente \n";
+    else echo 'Error: '. $this->mysqli->error;
     $thread_id = $this->mysqli->thread_id;
     $this->mysqli->kill($thread_id);
     $this->mysqli->close();
