@@ -11,9 +11,9 @@ class <controlador_nombre> extends Controlador{
  }
  public function index($id=null){
    if($id) {
-     $this->cargarModelo($id);
-     $this->vista->show("ver");
+     $this->setID($id);
+     return $this->vista->show("ver");
    }
-   else $this->vista->show("inicio");
+   return $this->vista->show("inicio");
  }
 }

@@ -3,23 +3,33 @@
  *
  */
 class <vista_nombre> extends Vista{
+  public function __construct(){
+    parent::__construct();
+    $this->items_navbar = [ // si siempre es igual, podria modificarse en el contructor del padre (Vista)
+      "Lugar"=>"Lugar",
+      "wea"=>[
+        "wea1"=>"xd",
+        "fome2"=>"lel"
+      ]
+    ];
+  }
   public function index(){
     return "{COMPONENTE:navbar}";
   }
   public function ver(){
-    return "
+    return '
     {COMPONENTE:navbar}
-    {COMPONENTE:<nombre_componente>}";
+    {COMPONENTE:edit}
+    ';
   }
   public function listado(){
-    $this->data['listado'] = $this->controlador->listado;
     return '
     <div class="container">
       <div class="row">
         <div class="card-deck-wrapper">
           <div class="card-deck">
           {LOOP:listado}
-          {COMPONENTE:<nombre_componente>}
+          {COMPONENTE:Lugar}
           {ENDLOOP}
         </div>
       </div>
@@ -27,13 +37,13 @@ class <vista_nombre> extends Vista{
   </div>
     ';
   }
-  public function <nombre_componente>(){
+  public function Lugar(){
     return '
     <div class="card" style="max-width:50%; margin-bottom: 1em;">
       <img class="card-img-top" src="https://github.com/FezVrasta/bootstrap-material-design/raw/master/demo/imgs/banner.jpg"
       style="max-width:100%; min-width: 25vw;">
       <div class="card-block">
-        <a href="'.URL.'?c=lugar&p={GET:id_<nombre_componente>}"><h4 class="card-title"> {GET:nombre}</h4></a>
+        <a href="'.URL.'?c=lugar&p={id_Lugar}"><h4 class="card-title"> {nombre}</h4></a>
         <p class="card-text"><small class="text-muted"> {GET:created_at}</small></p>
       </div>
     </div>
@@ -42,7 +52,12 @@ class <vista_nombre> extends Vista{
   public function inicio(){
     return "
     {COMPONENTE:navbar}
-    {COMPONENTE:listado}";
+    {COMPONENTE:listado}
+    {SCRIPT}
+    'use strict'
+    let cargar = () => Request({url:'http://munch.paap.cup.edu.uy/Turismo/?c=Recorrido&a=get&p=6'}).then(e=>console.log(e)).catch(e=>console.log(e))
+    window.onload = cargar
+    {ENDSCRIPT}";
   }
 }
 

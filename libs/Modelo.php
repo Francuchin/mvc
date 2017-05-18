@@ -5,48 +5,58 @@
 require_once 'config.php';
 class Modelo
 {
+  protected static $instancia;
   /**
   *
   * __construct
   *
   */
-  function __construct($id=null){
-    $this->DB_HOST= DB_HOST;
-    $this->DB_USER= DB_USER;
-    $this->DB_PASS= DB_PASS;
-    $this->DB_NAME= DB_NAME;
-    $this->id = $id;
-    $this->mysqli = new mysqli($this->DB_HOST, $this->DB_USER, $this->DB_PASS, $this->DB_NAME);
+  protected function __construct(){
+    $this->mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     if (mysqli_connect_errno()) {
       printf("Connect failed: %s\n", mysqli_connect_error());
       exit();
     }
   }
-  function getAtributo($att){
+  protected static function getInstance(){
+     if (!self::$instancia instanceof self){
+        self::$instancia = new self;
+     }
+     return self::$instancia;
+  }
+  public static function setID($id){
+    self::getInstance()->id = $id;
+  }
+  public static function setNombreTabla($nombreTabla){
+    self::getInstance()->nombreTabla = $nombreTabla;
+  }
+  public static function getAtributo($att){
+    $self = self::getInstance();
     if(is_array($att)){
       $consulta = "SELECT '";
       foreach ($att as $v) {
         $consulta.=$v."', '";
       }
       $consulta = substr($consulta, 0, -3);
-      $consulta .=" FROM ".$this->nombreTabla;
-      if(isset($this->id)) $consulta .= " WHERE id_".$this->nombreTabla."=".$this->id;
-    }else $consulta = "SELECT ".$att." FROM ".$this->nombreTabla;
-    if(isset($this->id)){
-      $consulta .= " WHERE id_".$this->nombreTabla."=".$this->id;
-      return $this->consulta($consulta)[0];
+      $consulta .=" FROM ".$self->nombreTabla;
+      if(isset($self->id)) $consulta .= " WHERE id_".$self->nombreTabla."=".$self->id;
+    }else $consulta = "SELECT ".$att." FROM ".$self->nombreTabla;
+    if(isset($self->id)){
+      $consulta .= " WHERE id_".$self->nombreTabla."=".$self->id;
+      return $self->consulta($consulta)[0];
     }
-    return $this->consulta($consulta);
+    return $self->consulta($consulta);
   }
   /**
   *
   * __destruct
   *
   */
-  function __destruct(){
-    $thread_id = $this->mysqli->thread_id;
-    $this->mysqli->kill($thread_id);
-    $this->mysqli->close();
+  public function __destruct(){
+    $self = self::$instancia;
+    $thread_id = $self->mysqli->thread_id;
+    $self->mysqli->kill($thread_id);
+    $self->mysqli->close();
   }
   /**
   * para consultas cosas mas complejas
@@ -56,10 +66,11 @@ class Modelo
   * @return $result = [ 0 => ['id' => 1, 'nombre' => 'el uno'], 1 => ['id' => 2, 'nombre' => 'el dos xD']]
   *
   */
-  function consulta($consulta){
+  public static function consulta($consulta){
+    $self = self::getInstance();
     $result = null;
     //echo "consulta - ".$consulta."\n";
-    if ($stmt = $this->mysqli->prepare($consulta)) {
+    if ($stmt = $self->mysqli->prepare($consulta)) {
       $stmt->execute();
       $meta = $stmt->result_metadata();
       while ($field = $meta->fetch_field()) $params[] = &$row[$field->name];
@@ -72,8 +83,19 @@ class Modelo
     }
     return $result;
   }
-
   /**
+  *
+  *
+  */
+  public static function getEstructura(){
+    $self = self::getInstance();
+    return $self->consulta("SHOW columns FROM ".$self->nombreTabla.";");
+  }
+  public static function getListado(){
+    $self = self::getInstance();
+    return $self->consulta("SELECT * FROM ".$self->nombreTabla.";");
+  }
+  /*
   * select
   * @param Array<String> $atributos
   * @param Array<String> $tablas
@@ -82,7 +104,6 @@ class Modelo
   *
   * @return Array $result / Error
   * @return $result = [ 0 => ['id' => 1, 'nombre' => 'el uno'], 1 => ['id' => 2, 'nombre' => 'el dos xD']]
-  */
   function select($atriburos, $tablas, $where=null, $whereValores=null){
     $columnas = "";
     $from = "";
@@ -106,4 +127,5 @@ class Modelo
     }
     return $result;
   }
+  */
 }

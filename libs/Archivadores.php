@@ -42,6 +42,18 @@ class PLANTOYA {
     $thread_id = $this->mysqli->thread_id;
     $this->mysqli->kill($thread_id);
     $this->mysqli->close();
+    $this->crearTablas();
+  }
+  private function crearTablas(){
+    $this->mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    if (mysqli_connect_errno()) {
+      printf("Connect failed: %s\n", mysqli_connect_error());
+      exit();
+    }else echo "conectado a la base de datos: ". DB_NAME ."...\n";
+    $sql = "CREATE TABLE PLANTOYA_GRUPOS(id_PGrupo int PRIMARY KEY NOT NULL AUTO_INCREMENT, nombre TEXT);";
+    if ($this->mysqli->query($sql) === TRUE) echo "Tabla PLANTOYA_GRUPOS creada correctamente\n";
+    $sql = "CREATE TABLE PLANTOYA_GRUPOS_REL(id_PGrupo INT, tabla TEXT, columna TEXT);";
+    if ($this->mysqli->query($sql) === TRUE) echo "Tabla PLANTOYA_GRUPOS_REL creada correctamente\n";
   }
 }
 
@@ -122,8 +134,10 @@ class _MVC{
     if ($this->mysqli->query($sql) === TRUE) echo "Tabla creada \n";
     foreach ($this->atributos as $value) {
       $sql = "ALTER TABLE ".$this->nombre." ADD ".$value['nombre']." ".$value['tipo'].";";
-      if ($this->mysqli->query($sql) === TRUE) echo "Atributo '".$value['nombre']."' agregado correctamente \n";
-      else echo 'Error: '. $this->mysqli->error;
+      if ($this->mysqli->query($sql) === TRUE) {
+        echo "Atributo '".$value['nombre']."' agregado correctamente \n";
+
+      }else echo 'Error: '. $this->mysqli->error;
     }
     $sql = "ALTER TABLE ".$this->nombre." ADD created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP;";
     if ($this->mysqli->query($sql) === TRUE) echo "Atributo 'created_at' agregado correctamente \n";
@@ -140,12 +154,13 @@ class _MVC{
       echo "Creando Modelo...".$archivo."\n";
     }else echo "No se encontro la ruta de la plantoya de modelo \n";
   }
-  function agregarAtributo($nombre, $tipo, $nulo=null, $tam=null, $ai=null){
+  function agregarAtributo($nombre, $tipo,$nulo=null,  $grupo=null, $tam=null, $ai=null){
     $atributo =
     [
       "nombre" => $nombre,
       "tipo" => $tipo,
       "nulo" => $nulo,
+      "grupo" => $grupo,
       "tam" => $tam,
       "auto_incremental" => $ai
     ];

@@ -11,6 +11,7 @@ class Vista {
     $this->LscriptsPie = [];
     $this->vistaPadre = null;
     $this->titulo = null;
+    $this->items_navbar = [];
   }
   function json($data=null){
     if(isset($data)) $this->data = $data;
@@ -231,21 +232,17 @@ class Vista {
     </html>';
   }
 
-/*
-* COMPONENTES
+  /*----- COMPONENTES COMPARTIDOS -----*/
+/**
+*
+* Barra de Navegacion
+*
 */
-private function navbar_item($text, $c=null, $a=null){
-  return '
-  <li class="nav-item">
-    <a class="nav-link" href="'.URL.'?c='.(isset($c) ? $c : $text).'">'.$text.'</a>
-  </li>
-  ';
-}
-function navbar(){
+protected function navbar(){
   $l = "";
-  if(isset($this->items_navbar) && isset($this->items_navbar[0]))
+  if(isset($this->items_navbar) && is_array($this->items_navbar))
   foreach ($this->items_navbar as $key => $v) {
-    $l .= $this->navbar_item($key, $v);
+    $l .= is_array($v) ? $this->dropdown($key, $v) : $this->navbar_item($key, $v);
   }
   return '
   <nav class="navbar navbar-fixed-top navbar-light bg-faded">
@@ -253,11 +250,84 @@ function navbar(){
     <ul class="nav navbar-nav">
     '.$l.'
     </ul>
-    <form class="form-inline pull-xs-right">
-      <input class="form-control" type="text" placeholder="Buscar">
-    </form>
+    <div class="bmd-form-group bmd-collapse-inline pull-xs-right">
+      <button class="btn bmd-btn-icon" for="search" data-toggle="collapse" data-target="#collapse-search-1" aria-controls="collapse-search-1">
+        <i class="material-icons">search</i>
+      </button>
+      <span id="collapse-search-1" class="collapse">
+        <input class="form-control" type="text" id="search" placeholder="Buscar...">
+      </span>
+    </div>
   </nav>
   <div style="height:55px"></div>';
 }
+/**
+*
+* Item de la Barra de Navegacion
+*
+*/
+protected function navbar_item($text, $c=null, $a=null){
+  return '
+  <li class="nav-item">
+    <a class="nav-link" href="'.URL.'?c='.(isset($c) ? $c : $text).'">'.$text.'</a>
+  </li>
+  ';
+}
+/**
+*
+* Dropdown (conjunto de items) de la Barra de Navegacion
+*
+*/
+  protected function dropdown($titulo, $cont) {
+    $l="";
+    foreach ($cont as $key => $value) {
+      $l.='<a class="dropdown-item" href="'.URL.'?c='.$value.'">'.$key.'</a>';
+    }
+    return '
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">'.$titulo.'</a>
+      <div class="dropdown-menu">
+      '.$l.'
+      </div>
+    </li>
+    ';
+  }
+  protected function edit(){
+    foreach ($this->data['estructura'] as $key => $value) {
+      $campos.=$this->edit_campo($value);
+    }
+    return '
+    <div class="container">
+      <form class="form-signin m-x-auto">
+        <h2>Editar</h2>
+        '.$campos.'
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Enviar</button>
+      </form>
+    </div>
+    ';
+  }
+  protected function edit_campo($campo){
+    if($campo['Key']!='PRI'){
+      return '
+      <div class="form-group">
+      <label for="'.$campo['Field'].'" class="bmd-label-floating text-capitalize">'.$campo['Field'].'</label>
+      <input type="text" id="'.$campo['Field'].'" class="form-control" '.(($campo['Key']=='PRI') ? 'readonly':'').' value="'.$this->data[$campo['Field']].'">
+      </div>
+      ';
+    }else {
+      return '
+      <input type="text" id="'.$campo['Field'].'" value="'.$this->data[$campo['Field']].'" readonly hidden>
+      ';
+    }
+  }
+  /*---- INPUTS -----*/
+  protected function input($tipo, $nombre, $valor, $editable, $visible){
 
+  }
+  protected function input_TEXT($nombre, $valor, $editable, $visible){
+    return '
+    <label for="'.$nombre.'" class="bmd-label-floating text-capitalize">'.$nombre.'</label>
+    <input type="text" id="'.$nombre.'" name="'.$nombre.'" class="form-control" '.((!$editable) ? 'readonly':'').' value="'.$valor.'">
+    ';
+  }
 }

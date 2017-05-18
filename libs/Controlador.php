@@ -8,7 +8,7 @@ class Controlador
     $this->cargarVista();
     $this->cargarModelo();
   }
-  function cargarVista(){
+  private function cargarVista(){
   $vista = get_class($this).'_Vista';
     $rutaVista = './mvc/'.get_class($this).'/'.$vista.'.php';
     if(file_exists($rutaVista)) {
@@ -18,25 +18,28 @@ class Controlador
       $this->vista = new Vista(); // cargar clase vista comun
     $this->vista->controlador = $this;
   }
-  function cargarModelo($id=null){
+  protected function setID($id){
+    $this->modelo->setID($id);
+    $datos = $this->modelo->getAtributo("*");
+    if(isset($datos))
+    foreach ($datos as $key => $value) {
+      $this->{$key} = $value;
+      $this->vista->data[$key] = $value;
+    }
+  }
+  protected function cargarModelo(){
     $modelo = get_class($this).'_Modelo';
     $rutaModelo = './mvc/'.get_class($this).'/'.$modelo.'.php';
     if(file_exists($rutaModelo)){
       require_once $rutaModelo;
-      $this->modelo = new $modelo($id);
-    }else $this->modelo = new Modelo($id);
-    $this->modelo->nombreTabla = get_class($this);
-    $this->modelo->id = $id;
-    if(isset($id)){
-      $datos = $this->modelo->getAtributo("*");
-      foreach ($datos as $key => $value) {
-        $this->{$key} = $value;
-        $this->vista->data[$key] = $value;
-      }
-    }else{
-      $this->listado = $this->modelo->getAtributo("*");
-      $this->vista->data['listado'] = $this->listado;
-    }
+      $this->modelo = $modelo::getInstance();
+    }else $this->modelo = Modelo::getInstance();
+    $this->modelo->setNombreTabla(get_class($this));
+    $this->listado = $this->modelo->getListado();
+    $this->vista->data['listado'] = $this->listado;
+    $this->estructura = $this->modelo->getEstructura();
+    $this->vista->data['estructura'] = $this->estructura;
+    //var_dump( $this->estructura);
   }
   function getAtributo($att){
     return $this->modelo($att);

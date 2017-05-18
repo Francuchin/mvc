@@ -2,3 +2,8 @@
 a:hover, a:active, a:focus, a:link, a{
   text-decoration: none;
 }
+form {
+  max-width: 70vw;
+  padding: auto;
+  margin: 1% auto;
+}

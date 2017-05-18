@@ -1,6 +1,7 @@
 <?php
 class Lugar_Modelo extends Modelo{
- public function __construct(){
-  parent::__construct();
- }
+  public static function getInstance(){
+    if (!self::$instancia instanceof self) self::$instancia = new self;
+    return self::$instancia;
+  }
 }
